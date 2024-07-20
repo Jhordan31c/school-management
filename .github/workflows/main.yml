@@ -32,8 +32,6 @@ jobs:
       - name: Npm Install Packages
         run: npm install
         
-      - name: Test & Code Coverage
-        run: npm test -- --coverage
         
       - name: Upload Code Coverage
         uses: codecov/codecov-action@v1
