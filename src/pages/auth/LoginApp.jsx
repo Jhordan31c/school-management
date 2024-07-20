@@ -107,7 +107,7 @@ export default function LoginApp() {
         </div>
         <Spline
           className="absolute bottom-0 left-0 z-0"
-          scene="https://prod.spline.design/AVYcuaEZ2h6PdE2z/scene.splinecode"
+          scene="https://prod.spline.design/9euumdwLgxR0tlgr/scene.splinecode"
         />
       </div>
       <footer className="bg-transparent absolute w-full bottom-0 left-0 z-30">
