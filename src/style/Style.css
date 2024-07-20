@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Kalnia+Glaze:wght@100..700&display=swap');
+
+.custom-time-picker .react-time-picker__wrapper {
+    border: none;
+    box-shadow: none;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-time-picker .react-time-picker__inputGroup__input {
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-size: 1rem;
+    outline: none;
+}
+
+.custom-time-picker .react-time-picker__inputGroup__divider {
+    padding: 5px;
+}
+
+.custom-time-picker .react-time-picker__wrapper:focus-within {
+    background-color: #e5e7eb;
+    box-shadow: 0 0 0 2px #26489147;
+}
+
+.custom-time-picker .react-time-picker__wrapper:hover {
+    background-color: #e5e7eb;
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fade-in-up 0.2s ease-out;
+}
+
+/* Estilos para CustomSelect */
+.CustomSelect .absolute {
+    border-radius: 8px;
+    /* Ajusta el radio según tu preferencia */
+}
+
+.CustomSelect .absolute>div {
+    padding: 8px;
+    /* Ajusta el padding según tu preferencia */
+    margin: 4px;
+    /* Ajusta el margen según tu preferencia */
+    border-radius: 4px;
+    /* Ajusta el radio según tu preferencia */
+}
+
+.pop {
+    font-family: "Kalnia Glaze", serif;
+    font-optical-sizing: auto;
+    font-size: 20vh;
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
+}

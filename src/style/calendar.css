@@ -1,0 +1,162 @@
+/* FONDO GENERAL CALENDARIO*/
+.ContenedorCalendar {
+  justify-content: center;
+  height: 85vh;
+  width: 75vw;
+}
+
+.rbc-calendar {
+  top: -28px;
+}
+
+/* BORDE DEL CALENDARIO*/
+.rbc-month-view {
+  border-radius: 15px;
+}
+
+/* ENCABEZADO CALENDARIO POR SECCION */
+.rbc-header {
+  padding: 10px;
+  font-weight: 500;
+}
+
+
+.rbc-event {
+  background-color: transparent;
+}
+
+.rbc-row {
+  --tw-text-opacity: 1;
+  color: rgb(55 65 81 / var(--tw-text-opacity));
+  font-size: 0.75rem;
+  font-weight: 300;
+
+}
+
+.rbc-date-cell.rbc-now .rbc-button-link {
+  margin-top: 3px;
+  background-color: rgba(79, 70, 229, 1);
+  color: white;
+  font-weight: 600;
+  border-radius: 50%;
+  padding: 0.25rem;
+}
+
+.rbc-event-content {
+  white-space: normal !important;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.rbc-event-content {
+  color: black;
+}
+
+.rbc-off-range-bg {
+  background: #f1f1f1;
+}
+
+/*PARA CUANDO SE PRESIONA EL EVENTO Y SE MANTENGA TRANSPARENTE*/
+.rbc-event.rbc-selected,
+.rbc-day-slot .rbc-selected.rbc-background-event {
+  background-color: transparent;
+}
+
+.rbc-btn-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rbc-btn-group button {
+  background-color: #D5B9B2;
+  /* Tono medio anaranjado */
+  color: black;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: 400;
+}
+
+
+.rbc-btn-group button:hover {
+  background-color: #BFB5AF;
+  /* Tono anaranjado más oscuro al pasar el ratón */
+}
+
+/* FORMULARIO FECHA,HORA INICIO-FIN*/
+
+
+.react-datepicker-wrapper {
+  display: flex;
+  padding: 0;
+  border: 0;
+  width: 150px;
+  margin-left: 130px;
+  top: -20px;
+  position: relative;
+  height: 20px;
+}
+
+/*botonAñadir */
+
+.botonAñadir {
+  --color: rgba(79, 70, 229);
+  padding: 5px 10px;
+  background-color: rgb(96, 88, 243);
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: .5s;
+  font-weight: 400;
+  font-size: 17px;
+  border: 1px solid;
+  font-family: inherit;
+  text-transform: uppercase;
+  color: white;
+  z-index: 1;
+  left: 980px;
+  bottom: -10px;
+}
+
+.botonAñadir::before,
+.botonAñadir::after {
+  content: '';
+  display: block;
+  width: 50px;
+  height: 50px;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  border-radius: 50%;
+  z-index: -1;
+  background-color: var(--color);
+  transition: 1s ease;
+}
+
+.botonAñadir::before {
+  top: -1em;
+  left: -1em;
+}
+
+.botonAñadir::after {
+  left: calc(100% + 1em);
+  top: calc(100% + 1em);
+}
+
+.botonAñadir:hover::before,
+.botonAñadir:hover::after {
+  height: 410px;
+  width: 410px;
+}
+
+
+.botonAñadir:active {
+  filter: brightness(.8);
+}
+
+
+
+/* FORMULARIO  */

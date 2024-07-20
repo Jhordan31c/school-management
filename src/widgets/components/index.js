@@ -1,0 +1,13 @@
+export { default as Example } from "@/widgets/components/Combox";
+export { default as CommandPalette } from "@/widgets/components/CommandPalette";
+export { default as Modal } from "@/widgets/components/Modal";
+export { default as ButtonOpenModal } from "@/widgets/components/BottonPayment";
+export { default as CustomizedSteppers } from "@/widgets/components/Stepper";
+export { default as MultiSteps } from "@/widgets/components/MultiSteps";
+export { default as SearchBar } from "@/widgets/components/SearchBar";
+export { default as CalendarSection } from "@/widgets/components/CalendarSection";
+export { default as ChartsExample } from "@/widgets/components/CustomChart";
+export { default as AllCharts } from "@/widgets/components/CircleChart";
+export * from "@/widgets/components/TableModified";
+export * from "@/widgets/components/PaymentNoteCards";
+export { default as CustomInputExample } from "@/widgets/components/CustomInputExample";
