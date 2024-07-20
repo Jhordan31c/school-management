@@ -1,6 +1,8 @@
 import axios from 'axios';
+import rutaBase from './rutaBase';
 
-const urlApi = 'http://localhost:8080/eventos';
+const URL_BASE = rutaBase.URL_BASE;
+const urlApi = URL_BASE + '/eventos';
 
 const getEvents = () => {
   return axios.get(urlApi);

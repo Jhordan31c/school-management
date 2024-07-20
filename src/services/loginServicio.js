@@ -1,7 +1,9 @@
 import axios from "axios";
+import rutaBase from "./rutaBase";
 
-const urlgetData = "http://localhost:8080/users";
-const urlgetAlumno = "http://localhost:8080/alumnos/aula"
+const URL_BASE  = rutaBase.URL_BASE;
+const urlgetData = URL_BASE + "/users";
+const urlgetAlumno = URL_BASE +  "/alumnos/aula";
 
 
 const getData = (id, rol) => {

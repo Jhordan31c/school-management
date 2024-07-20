@@ -1,12 +1,14 @@
 import axios from "axios";
+import rutaBase from "./rutaBase";
 
-const urlGradeApi = "http://localhost:8080/grados";
-const urlEducatorApi = "http://localhost:8080/docentes/estado/1";
-const urlStudentsApi = "http://localhost:8080/alumnos/disponible/1";
-const urlTopicsApi = "http://localhost:8080/materias";
-const urlAulaApi = "http://localhost:8080/aulas";
-const urlAulaActiveApi = "http://localhost:8080/aulas/estado/1";
-const urlAulaDesactiveApi = "http://localhost:8080/aulas/estado/0";
+const URL_BASE = rutaBase.URL_BASE;
+const urlGradeApi = URL_BASE + "/grados";
+const urlEducatorApi = URL_BASE + "/docentes/estado/1";
+const urlStudentsApi = URL_BASE + "/alumnos/disponible/1";
+const urlTopicsApi = URL_BASE + "/materias";
+const urlAulaApi = URL_BASE + "/aulas";
+const urlAulaActiveApi = URL_BASE + "/aulas/estado/1";
+const urlAulaDesactiveApi = URL_BASE + "/aulas/estado/0";
 
 const getGrades = () => {
     return axios.get(urlGradeApi);

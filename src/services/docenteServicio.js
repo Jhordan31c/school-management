@@ -1,13 +1,16 @@
 import axios from 'axios';
+import rutaBase from './rutaBase';
 
-const urlApi = 'http://localhost:8080/docentes';
-const urlStatusActivate = 'http://localhost:8080/docentes/estado/1';
-const urlStatusDesactivated = 'http://localhost:8080/docentes/estado/0';
-const urlDocenteUser='http://localhost:8080/users';
-const urlDocenteHorario='http://localhost:8080/docentes/horario';
-const urlAulasAsignadas='http://localhost:8080/docentes/aulas-asignadas';
-const urlAulaElegida='http://localhost:8080/docentes/alumnos-materias';
-const urlApiAlumnosAsignados = 'http://localhost:8080/docentes/alumnos-correspondientes';
+
+const URL_BASE = rutaBase.URL_BASE;
+const urlApi = URL_BASE + '/docentes';
+const urlStatusActivate = URL_BASE + '/docentes/estado/1';
+const urlStatusDesactivated = URL_BASE + '/docentes/estado/0';
+const urlDocenteUser= URL_BASE +  '/users';
+const urlDocenteHorario= URL_BASE +  '/docentes/horario';
+const urlAulasAsignadas= URL_BASE + '/docentes/aulas-asignadas';
+const urlAulaElegida= URL_BASE + '/docentes/alumnos-materias';
+const urlApiAlumnosAsignados = URL_BASE +  '/docentes/alumnos-correspondientes';
 
 const getDocentes = () => {
   return axios.get(urlApi);

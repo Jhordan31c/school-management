@@ -1,7 +1,9 @@
 import axios from 'axios';
+import rutaBase from './rutaBase';
 
-const urlApiMateriasAreas = 'http://localhost:8080/materias/areas';
-const urlApiMaterias= 'http://localhost:8080/materias';
+const URL_BASE = rutaBase.URL_BASE;
+const urlApiMateriasAreas =  URL_BASE + '/materias/areas';
+const urlApiMaterias= URL_BASE + '/materias';
 
 const getAreasyMaterias = () => {
   return axios.get(urlApiMateriasAreas);

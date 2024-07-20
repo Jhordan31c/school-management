@@ -1,3 +1,5 @@
+import React, { useState, useEffect, Fragment } from "react";
+import materiasServicio from '@/services/materiasServicio';
 import {
   Card,
   CardHeader,
@@ -5,13 +7,21 @@ import {
   Typography,
   Avatar,
   Chip,
+  Button,
+  Tabs,
+  TabsHeader,
+  Tab,
+  Input,
+  Menu,
+  MenuHandler,
+  MenuList,
+  MenuItem,
+  IconButton,
   Tooltip,
   Progress,
 } from "@material-tailwind/react";
-import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
-import { authorsTableData, projectsTableData } from "@/data";
-import React, { useState, useEffect } from "react";
-import materiasServicio from '../../services/materiasServicio';
+import { Transition, TransitionChild, Dialog, DialogTitle } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 
 
@@ -19,10 +29,33 @@ export function Materias() {
 
   const [showModal, setShowModal] = useState(false);
   const [showModalMaterias, setShowModalMaterias] = useState(false);
-  const [selectedMateria, setSelectedMateria] = useState(null);
+  const [selectedMateria, setSelectedMateria] = useState({
+    nombre: ''
+    // Otros campos si es necesario
+  });
   const [selectedArea, setSelectedArea] = useState(null);
   const [areas, setAreas] = useState([]);
   const [nuevaMateria, setNuevaMateria] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen1, setIsOpen1] = useState(false);
+
+  const closeModal = () => {
+    setIsOpen(false);
+  };
+
+  const openModal = (area) => {
+    setIsOpen(true);
+    setSelectedArea(area);
+  };
+
+  const closeModal1 = () => {
+    setIsOpen1(false);
+  };
+
+  const openModal1 = (materia) => {
+    setIsOpen1(true);
+    setSelectedMateria(materia);
+  };
 
   //PARA CARGAR DESDE UN INICIO LAS MATERIAS EN SU RESPECTIVAS AREAS
   useEffect(() => {
@@ -41,17 +74,6 @@ export function Materias() {
     } catch (error) {
       console.error('ERROR AL ACCEDER A ENCONTRAR MATERIAS CON ÁREAS:', error);
     }
-  };
-  //PARA CUANDO SE OPRIMA EL EDITAR DE LA TABLA
-  const handleEditClick = (area) => {
-    setSelectedArea(area);
-    setShowModalMaterias(true);
-  };
-
-  //PARA CUANDO SE CLICKEA EL SVG DE EDITAR MATERIA
-  const handleEditMateriaClick = (materia) => {
-    setSelectedMateria(materia);
-    setShowModal(true);
   };
 
   //METODO PARA AÑADIR MATERIAS A UNA ÁREA
@@ -78,7 +100,7 @@ export function Materias() {
 
         setAreas(updatedAreas);
         setNuevaMateria('');
-        setShowModalMaterias(false);
+        setIsOpen(false);
       } else {
         console.error('No se pudo agregar la materia');
       }
@@ -91,26 +113,14 @@ export function Materias() {
   const handleDeleteMateria = async (materiaId) => {
     try {
       const response = await materiasServicio.deleteMateria(materiaId);
-
-      // COMPROBACIÓN SI SE HACE LA ACCIÓN DE ELIMINAR
+  
       if (response.data) {
-        const updatedAreas = areas.map(area => {
-          if (area.id === selectedArea.id) {
-            const updatedMaterias = area.materias.filter(materia => materia.id !== materiaId);
-            return {
-              ...area,
-              materias: updatedMaterias
-            };
-          }
-          return area;
-        });
-        setAreas(updatedAreas);
-        setShowModal(false);
+        fetchAreasConMaterias(); // Vuelve a cargar los datos
+        setIsOpen1(false);
       } else {
         console.error('No se pudo eliminar la materia');
       }
     } catch (error) {
-      // Manejo de errores
       console.error('Error al eliminar la materia:', error);
     }
   };
@@ -122,8 +132,7 @@ export function Materias() {
       if (response.data) {
         // Actualiza el estado de las áreas o realiza otras acciones según tus necesidades
         console.log('Materia actualizada:', response.data);
-        setShowModal(false); // Cierra el modal después de actualizar la materia
-
+        setIsOpen1(false); // Cierra el modal después de actualizar la materia
         // Vuelve a cargar los datos de la lista de materias
         fetchAreasConMaterias();
       } else {
@@ -198,7 +207,7 @@ export function Materias() {
                               {materia.nombre}
                             </Typography>
                             <button
-                              onClick={() => handleEditMateriaClick(materia)}
+                              onClick={() => openModal1(materia)}
                               className="flex items-center space-x-1 font-medium text-blue-600 dark:text-blue-500 hover:underline"
                             >
                               <svg
@@ -222,7 +231,7 @@ export function Materias() {
                     </td>
                     <td className={className}>
                       <button
-                        onClick={() => handleEditClick(area)}
+                        onClick={() => openModal(area)}
                         className="flex items-center space-x-1 font-medium text-green-600 dark:text-green-500 hover:underline"
                       >
                         <span>Añadir</span>
@@ -245,88 +254,126 @@ export function Materias() {
           </table>
         </CardBody>
       </Card>
-      {showModalMaterias && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg w-3/4 md:w-1/2 lg:w-1/3 h-auto max-h-screen overflow-y-auto">
-            <div className="px-4 py-3 border-b border-gray-700 flex justify-between items-center">
-              <h5 className="text-xl font-medium text-black">Añadir Materia al Área de {selectedArea && selectedArea.nombre}</h5>
-              <button
-                type="button"
-                className="text-red-400 font-bold hover:bg-gray-300 rounded-lg px-2 py-2 shadow-md"
-                onClick={() => setShowModalMaterias(false)}
+      <div>
+        <Transition appear show={isOpen} as={Fragment}>
+          <Dialog as="div" className="fixed inset-0 z-50 overflow-y-auto" onClose={closeModal}>
+            <div className="min-h-screen px-4 text-center">
+              <TransitionChild
+                as={Fragment}
+                enter="ease-out duration-200"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-100"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
               >
-                <span className="sr-only">Close</span>
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-            </div>
-            <div className="p-4">
-              <label className="block mb-2 font-bold text-black">NOMBRE DE LA MATERIA:</label>
-              <input
-                type="text"
-                value={nuevaMateria}
-                onChange={(e) => setNuevaMateria(e.target.value)}
-                className=" mt-1 block w-full px-3 py-2 border border-purple-600 rounded-md bg-transparent text-black shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-
-              />
-            </div>
-            <div className="px-4 py-3 border-t border-gray-700 flex justify-end space-x-2">
-              <button
-                type="button"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-all duration-500 z-1 border-2 border-blue-900"
-                onClick={handleAddMateria}
+                <div className="fixed inset-0 bg-black opacity-30" />
+              </TransitionChild>
+              <span className="inline-block h-screen align-middle" aria-hidden="true">
+                &#8203;
+              </span>
+              <TransitionChild
+                as={Fragment}
+                enter="ease-out duration-200"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-100"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
               >
-                <span>Agregar</span>
-              </button>
+                <div className="inline-block max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl mx-auto">
+                  <DialogTitle as="h3" className="text-lg font-medium leading-6 text-gray-900 text-center">
+                    Añadir Materia al Área de {selectedArea && selectedArea.nombre}
+                  </DialogTitle>
+                  <div className="mt-4">
+                  </div>
+                  <div className="mt-4">
+                    <div className="mt-1">
+                      <Input
+                        color="gray"
+                        label="Nombre de Materia"
+                        type="text"
+                        value={nuevaMateria}
+                        onChange={(e) => setNuevaMateria(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center mt-8 space-x-4">
+                    <Button color="red" onClick={closeModal}>Cancelar</Button>
+                    <Button color="green" onClick={handleAddMateria}>Guardar</Button>
+                  </div>
+                  <button
+                    onClick={closeModal}
+                    className="absolute top-2 right-2 p-1 rounded-lg text-gray-500 bg-transparent hover:bg-gray-50 hover:text-gray-600 w-7 fill-current"
+                  >
+                    <XMarkIcon />
+                  </button>
+                </div>
+              </TransitionChild>
             </div>
-          </div>
-        </div>
-      )}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg w-3/4 md:w-1/2 lg:w-1/3 h-auto max-h-screen overflow-y-auto">
-            <div className="px-4 py-3 border-b border-gray-700 flex justify-between items-center">
-              <h5 className="text-xl font-medium text-black">Editar Materia</h5>
-              <button
-                type="button"
-                className="text-red-400 font-bold hover:bg-gray-300 rounded-lg px-2 py-2 shadow-md"
-                onClick={() => setShowModal(false)}
+          </Dialog>
+        </Transition>
+      </div>
+      <div>
+        <Transition appear show={isOpen1} as={Fragment}>
+          <Dialog as="div" className="fixed inset-0 z-50 overflow-y-auto" onClose={closeModal1}>
+            <div className="min-h-screen px-4 text-center">
+              <TransitionChild
+                as={Fragment}
+                enter="ease-out duration-200"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-100"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
               >
-                <span className="sr-only">Close</span>
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-            </div>
-            <div className="p-4">
-              <label className="block mb-2 font-bold text-black">Actualizar nombre de la materia:</label>
-              <input
-                type="text"
-                value={selectedMateria.nombre}
-                onChange={(e) => setSelectedMateria({ ...selectedMateria, nombre: e.target.value })}
-                className="mt-1 block w-full px-3 py-2 border border-purple-600 rounded-md bg-transparent text-black shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-              />
-            </div>
-            <div className="px-4 py-3 border-t border-gray-700 flex justify-end space-x-2">
-              <button
-                type="button"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-all duration-500 z-1 border-2 border-blue-900"
-                onClick={handleUpdateMateria}
+                <div className="fixed inset-0 bg-black opacity-30" />
+              </TransitionChild>
+              <span className="inline-block h-screen align-middle" aria-hidden="true">
+                &#8203;
+              </span>
+              <TransitionChild
+                as={Fragment}
+                enter="ease-out duration-200"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-100"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
               >
-                <span>Guardar cambios</span>
-              </button>
-              <button
-                type="button"
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-all duration-500 z-1 border-2 border-red-900"
-                onClick={() => handleDeleteMateria(selectedMateria.id)}
-              >
-                <span>Eliminar materia</span>
-              </button>
+                <div className="inline-block max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl mx-auto">
+                  <DialogTitle as="h3" className="text-lg font-medium leading-6 text-gray-900 text-center">
+                    Editar Materia
+                  </DialogTitle>
+                  <div className="mt-4">
+                  </div>
+                  <div className="mt-4">
+                    <div className="mt-1">
+                      <Input
+                        color="gray"
+                        label="Nombre de Materia"
+                        type="text"
+                        value={selectedMateria.nombre}
+                        onChange={(e) => setSelectedMateria({ ...selectedMateria, nombre: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center mt-8 space-x-4">
+                    <Button color="red" onClick={() => handleDeleteMateria(selectedMateria.id)} >Eliminar Materia</Button>
+                    <Button color="green" onClick={handleUpdateMateria}>Guardar</Button>
+                  </div>
+                  <button
+                    onClick={closeModal1}
+                    className="absolute top-2 right-2 p-1 rounded-lg text-gray-500 bg-transparent hover:bg-gray-50 hover:text-gray-600 w-7 fill-current"
+                  >
+                    <XMarkIcon />
+                  </button>
+                </div>
+              </TransitionChild>
             </div>
-          </div>
-        </div>
-      )}
+          </Dialog>
+        </Transition>
+      </div>
     </div>
   )
 }

@@ -1,9 +1,11 @@
 import axios from 'axios';
+import rutaBase from './rutaBase';
 
-const urlStatusDesactivated = 'http://localhost:8080/citas/estado/0';
-const urlApi = 'http://localhost:8080/citas';
-const urlStatusActivate = 'http://localhost:8080/citas/estado/1';
-const urlStatusCancelado = 'http://localhost:8080/citas/estado/2';
+const URL_BASE = rutaBase.URL_BASE;
+const urlStatusDesactivated = URL_BASE + '/citas/estado/0';
+const urlApi = URL_BASE +  '/citas';
+const urlStatusActivate = URL_BASE +  '/citas/estado/1';
+const urlStatusCancelado =  URL_BASE + '/citas/estado/2';
 
 const getCitasActivate = () => {
   return axios.get(urlStatusActivate);

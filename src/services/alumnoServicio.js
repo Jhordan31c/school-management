@@ -1,10 +1,13 @@
 import axios from 'axios';
+import rutaBase from './rutaBase';
 
-const urlApi = 'http://localhost:8080/alumnos';
-const urlStatusActivate = 'http://localhost:8080/alumnos/estado/1';
-const urlStatusDesactivated = 'http://localhost:8080/alumnos/estado/0';
-const urlDataCourses = "http://localhost:8080/alumnos/materias";
-const urlDataGrades = "http://localhost:8080/alumnos/grados";
+
+const URL_BASE = rutaBase.URL_BASE;
+const urlApi = URL_BASE + '/alumnos';
+const urlStatusActivate = URL_BASE + '/alumnos/estado/1';
+const urlStatusDesactivated = URL_BASE + '/alumnos/estado/0';
+const urlDataCourses = URL_BASE + "/alumnos/materias";
+const urlDataGrades = URL_BASE + "/alumnos/grados";
 
 
 
@@ -54,7 +57,7 @@ const getAcademicLevelsByStudent = (idAlumno) => {
   return axios.get(`${urlDataGrades}/${idAlumno}`);
 }
 
-const updateMyInformation = (id,updatedAlumno) =>{
+const updateMyInformation = (id, updatedAlumno) => {
   return axios.put(`${urlApi}/${id}`, updatedAlumno);
 }
 
@@ -68,7 +71,7 @@ export default {
   updateAlumnos,
   deleteAlumnos,
   busquedaAlumnos,
-  actualizarEstado, 
+  actualizarEstado,
   getCoursesByStudent,
   getTopicAllInformation,
   getAcademicLevelsByStudent,

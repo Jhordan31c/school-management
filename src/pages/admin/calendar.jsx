@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useContext, createContext } from 'react';
+import React, { useState, useEffect, useContext, createContext, Fragment } from 'react';
 import { Calendar as BigCalendar, dayjsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import dayjs from 'dayjs';
-import { Button } from '@material-tailwind/react';
+import { Button, Input, Select } from '@material-tailwind/react';
 import 'dayjs/locale/es';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -11,6 +11,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import '@/style/calendar.css'
 import eventoServicio from '@/services/eventoServicio';
 import { useUser } from "@/context/UserContext";
+import { Transition, TransitionChild, Dialog, DialogTitle } from "@headlessui/react";
+import { EllipsisVerticalIcon, PencilIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 
 const NotificationContext = createContext();
@@ -65,6 +67,7 @@ export function Calendar() {
   const [endTime, setEndTime] = useState('');
   const [showMenu, setShowMenu] = useState(false);
   const { notifications, addNotification, removeNotification } = useNotification();
+  const [isOpen, setIsOpen] = useState(false);
 
 
 
@@ -79,7 +82,7 @@ export function Calendar() {
   const fetchEvents = async () => {
     try {
       const response = await eventoServicio.getEvents();
-      if(response.data) {
+      if (response.data) {
         const formattedEvents = response.data.map(event => {
           console.log('Original event:', event); // Registro del evento original
           const startDateTime = dayjs(`${event.fecha.split('T')[0]}T${event.inicio}`).toDate();
@@ -88,10 +91,10 @@ export function Calendar() {
             ...event,
             title: event.nombre,
             description: event.descripcion,
-            inicio: event.inicio, 
-            fin: event.fin,       
-            start: startDateTime, 
-            end: endDateTime,     
+            inicio: event.inicio,
+            fin: event.fin,
+            start: startDateTime,
+            end: endDateTime,
             isActive: event.estado === 1,
           };
           console.log('Formatted event:', formattedEvent); // Registro del evento formateado
@@ -110,25 +113,35 @@ export function Calendar() {
 
   //ESTE METODO ABRE EL MODAL DEL EVENTO PARA ACTUALIZAR AL SELECCIONAR
   const handleSelectedEvent = (event) => {
+    setIsOpen(true);
     setShowModal(true);
     setSelectEvent(event);
     setEventTitle(event.title);
     setEventDescription(event.description);
-    setSelectedDate(dayjs(event.fecha).startOf('day').toDate());
+    setSelectedDate(dayjs(event.start).startOf('day').toDate());
     setEventStatus(event.isActive ? 1 : 0);
+    setStartTime(dayjs(event.start).format('HH:mm'));
+    setEndTime(dayjs(event.end).format('HH:mm'));
   }
+
+  const closeModal = () => {
+    setIsOpen(false);
+    resetForm();
+  };
+
+  const openModal = () => { // Obtiene solo la parte de la fecha en formato YYYY-MM-DD
+    setIsOpen(true);
+  };
 
   //METODO PARA GUARDAR EVENTO O ACTUALIZAR EL EVENTO QUE ESTA PREVIAMENTE CREADO
   const saveEvent = async () => {
     if (eventTitle && selectedDate) {
-      const startOfDay = startTime;
-      const endOfDay = endTime;
       const event = {
         nombre: eventTitle,
         descripcion: eventDescription,
-        fecha: selectedDate,
-        inicio: startOfDay,
-        fin: endOfDay,
+        fecha: selectedDate.toISOString().split('T')[0], // Asegúrate de que esté en formato YYYY-MM-DD
+        inicio: startTime,
+        fin: endTime,
         estado: eventStatus
       };
 
@@ -142,14 +155,14 @@ export function Calendar() {
         }
         console.log(event);
         fetchEvents();
-        setShowModal(false); 
-        resetForm(); 
+        setIsOpen(false);
+        resetForm();
       } catch (error) {
         console.error('Error saving event', error);
         addNotification('Error al crear evento');
       }
 
-      setShowModal(false);
+      setIsOpen(false);
       setEventTitle('');
       setEventDescription('');
       setEventStatus(1);
@@ -169,7 +182,7 @@ export function Calendar() {
         toast('ERROR AL ELIMINAR EL EVENTO');
       }
 
-      setShowModal(false);
+      setIsOpen(false);
       setEventTitle('');
       setEventDescription('');
       setEventStatus(1);
@@ -198,13 +211,15 @@ export function Calendar() {
     setEventDescription('');
     setSelectedDate(new Date());
     setEventStatus(1);
+    setStartTime('');
+    setEndTime('');
     setSelectEvent(null);
   };
 
   return (
     <div className="ContenedorCalendar w-full">
       <div className="flex justify-between items-center mb-3">
-        <Button variant="outlined" color='indigo' onClick={() => setShowModal(true)} className='ml-auto'>Añadir Evento</Button>
+        <Button variant="outlined" color='indigo' onClick={openModal} className='ml-auto'>Añadir Evento</Button>
       </div>
       <BigCalendar
         localizer={localizer}
@@ -219,122 +234,113 @@ export function Calendar() {
         }}
         onSelectEvent={handleSelectedEvent} // PARA QUE EL CALENDARIO ACEPTE EL METODO DE SELECCIONAR EVENTO
       />
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-gray-800 rounded-lg shadow-lg w-3/4 md:w-1/2 lg:w-1/3 h-auto max-h-screen overflow-y-auto">
-            <div className="px-4 py-3 border-b border-gray-700 flex justify-between items-center">
-              <h5 className="text-xl font-medium text-white">
-                {selectEvent ? 'Editar Evento' : 'Añadir Evento'}
-              </h5>
-              <button
-                type="button"
-                className="text-red-400 font-bold hover:bg-gray-300 rounded-lg px-2 py-2 shadow-md"
-                onClick={() => {
-                  setShowModal(false);
-                  resetForm(); // RESETEAR FORMULARIO
-                }}
+      <div>
+        <Transition appear show={isOpen} as={Fragment}>
+          <Dialog as="div" className="fixed inset-0 z-50 overflow-y-auto" onClose={closeModal}>
+            <div className="min-h-screen px-4 text-center">
+              <TransitionChild
+                as={Fragment}
+                enter="ease-out duration-200"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-100"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
               >
-                <span className="sr-only">Close</span>
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-            <div className="p-4">
-              <label className="block mb-2 font-bold text-white">NOMBRE DEL EVENTO:</label>
-              <input
-                type="text"
-                className="mt-1 block w-full px-3 py-2 border border-purple-600 rounded-md bg-transparent text-white shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                id="eventTitle"
-                value={eventTitle}
-                onChange={(e) => setEventTitle(e.target.value)}
-              />
-              <label className="block mt-4 mb-2 font-bold text-white">DESCRIPCIÓN DEL EVENTO:</label>
-              <textarea
-                className="mt-1 block w-full px-3 py-2 border border-purple-600 rounded-md bg-transparent text-white shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                id="eventDescription"
-                value={eventDescription}
-                onChange={(e) => setEventDescription(e.target.value)}
-              />
-              <div className="flex items-center mt-4">
-                <label className="font-bold text-white mr-2">FECHA:</label>
-                <DatePicker
-                  className="mt-2 block px-3 py-2 border border-purple-600 rounded-md bg-transparent text-white shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 w-36 -ml-28 react-datepicker-ignore-onclickoutside"
-                  selected={selectedDate}
-                  onChange={(date) => setSelectedDate(date)}
-                  dateFormat="dd/MM/yyyy"
-                />
-              </div>
-              <div className="flex items-center mt-4">
-                <label className="font-bold text-white mr-2">HORA DE INICIO:</label>
-                <input
-                  type="time"
-                  className="mt-1 block w-36 px-3 py-2 border border-purple-600 rounded-md bg-transparent text-white shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                />
-              </div>
-              <div className="flex items-center mt-4">
-                <label className="font-bold text-white mr-2">HORA DE FIN:</label>
-                <input
-                  type="time"
-                  className="mt-1 block w-36 px-3 py-2 border border-purple-600 rounded-md bg-transparent text-white shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                />
-              </div>
-              <div className="flex items-center mt-4">
-                <label className="font-bold text-white mr-2">ESTADO:</label>
-                <select
-                  className="mt-1 block w-36 px-3 py-2 border border-purple-600 rounded-md bg-transparent text-white shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 ml-2"
-                  value={eventStatus}
-                  onChange={(e) => setEventStatus(Number(e.target.value))}
-                >
-                  <option className="bg-gray-800 text-white" value={1}>
-                    Activo
-                  </option>
-                  <option className="bg-gray-800 text-white" value={0}>
-                    Inactivo
-                  </option>
-                </select>
-              </div>
-            </div>
-            <div className="px-4 py-3 border-t border-gray-700 flex justify-end space-x-2">
-              <button
-                type="button"
-                onClick={saveEvent}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-all duration-500 z-1 border-2 border-blue-900"
+                <div className="fixed inset-0 bg-black opacity-30" />
+              </TransitionChild>
+              <span className="inline-block h-screen align-middle" aria-hidden="true">
+                &#8203;
+              </span>
+              <TransitionChild
+                as={Fragment}
+                enter="ease-out duration-200"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-100"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
               >
-                <span>{selectEvent ? 'Actualizar' : 'Agregar'}</span>
-              </button>
-              {selectEvent && (
-                <button
-                  type="button"
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-all duration-500 z-1 border-2 border-red-900"
-                  onClick={deleteEvent}
-                >
-                  <span>Eliminar</span>
-                </button>
-              )}
+                <div className="inline-block max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl mx-auto">
+                  <DialogTitle as="h3" className="text-lg font-medium leading-6 text-gray-900 text-center">
+                    {selectEvent ? 'Editar Evento' : 'Nuevo Evento'}
+                  </DialogTitle>
+                  <div className="mt-4">
+                  </div>
+                  <div className="mt-4">
+                    <div className="mt-1">
+                      <Input
+                        type="text"
+                        className='w-full'
+                        label="Título del Evento"
+                        value={eventTitle}
+                        onChange={(e) => setEventTitle(e.target.value)}
+                      />
+                    </div>
+                    <div className="mt-4">
+                      <Input
+                        type="text"
+                        className='w-full'
+                        label="Descripción"
+                        value={eventDescription}
+                        onChange={(e) => setEventDescription(e.target.value)}
+                      />
+                    </div>
+                    <div className="mt-4">
+                      <input
+                        type="date"
+                        value={dayjs(selectedDate).format('YYYY-MM-DD')} // Asegúrate de que esté en formato YYYY-MM-DD
+                        onChange={(e) => setSelectedDate(dayjs(e.target.value).toDate())}
+                        className="block w-full p-2 border border-gray-300 rounded-md bg-white"
+                      />
+                    </div>
+                    <div className="mt-4">
+                      <Input
+                        type="time"
+                        label="Inicio"
+                        value={startTime}
+                        className='w-full'
+                        onChange={(e) => setStartTime(e.target.value)}
+                      />
+                    </div>
+                    <div className="mt-4">
+                      <Input
+                        type="time"
+                        label="Fin"
+                        value={endTime}
+                        className='w-full'
+                        onChange={(e) => setEndTime(e.target.value)}
+                      />
+                    </div>
+                    <div className="mt-4">
+                      <select
+                        id="eventStatus"
+                        value={eventStatus}
+                        onChange={(e) => setEventStatus(parseInt(e.target.value))}
+                        className="block w-full mt-1 p-2 border border-gray-300 rounded-md bg-white"
+                      >
+                        <option value={1}>Activo</option>
+                        <option value={0}>Inactivo</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex justify-end">
+                    {selectEvent && (
+                      <Button color="red" onClick={deleteEvent} className="mr-2">Eliminar Evento</Button>
+                    )}
+                    <Button onClick={saveEvent} className="mr-2">Guardar</Button>
+                    <Button onClick={closeModal} color="gray">Cancelar</Button>
+                  </div>
+                </div>
+              </TransitionChild>
             </div>
-          </div>
-        </div>
-      )}
+          </Dialog>
+        </Transition>
+      </div>
       <ToastContainer />
     </div>
   );
-  
+
 }
 
 export default Calendar;

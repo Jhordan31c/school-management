@@ -1,9 +1,10 @@
 import axios from "axios";
+import rutaBase from "./rutaBase";
 
-
-const urlApodPagos = "http://localhost:8080/pagos/alumnos";
-const urlPago = "http://localhost:8080/pagos";
-const urlPagos = "http://localhost:8080/pagos/parametro-paga";
+const URL_BASE = rutaBase.URL_BASE;
+const urlApodPagos = URL_BASE + "/pagos/alumnos";
+const urlPago = URL_BASE + "/pagos";
+const urlPagos = URL_BASE + "/pagos/parametro-paga";
 
 const getApodPagos = () => {
     return axios.get(urlApodPagos);

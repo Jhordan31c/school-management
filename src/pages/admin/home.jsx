@@ -21,10 +21,7 @@ import {
 import { StatisticsCard } from "@/widgets/cards";
 import { StatisticsChart } from "@/widgets/charts";
 import {
-  statisticsCardsData,
-  statisticsChartsData,
-  projectsTableData,
-  ordersOverviewData,
+  useStatisticsData, getStatisticsCardsData, statisticsChartsData
 } from "@/data";
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
 import { ChartsExample, AllCharts } from "@/widgets/components";
@@ -39,6 +36,9 @@ export function Home() {
 
   const [citas, setCitas] = useState([]);
   const { user } = useUser();
+  const { studentsCount, educatorsCount } = useStatisticsData();
+  const statisticsCardsData = getStatisticsCardsData(studentsCount, educatorsCount);
+
 
   console.log(user)
 
